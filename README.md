@@ -23,3 +23,8 @@ client -(1)-> server -(2)-> broker(redis/kafka) -(3)-> worker -> notify
 1. 客户端通过 server 提供的 http 协议的接口发送一个 post 请求，根据不同的渠道，提供不同的参数
 2. server 接收请求，验证数据，然后将通知的相关参数发送到 broker 
 3. worker 通过轮询 poll 获取需要发送的通知，执行发送，结果保存在 ResultBackend
+
+## 参考项目
+
+* RichardKnop/machinery: Machinery is an asynchronous task queue/job queue based on distributed message passing.: https://github.com/RichardKnop/machinery
+* celery/celery: Distributed Task Queue : https://github.com/celery/celery
