@@ -8,9 +8,10 @@ import (
 
 // Notification ...
 type Notification struct {
-	ID    bson.ObjectId `json:"id" bson:"_id"`
-	Param interface{}   `json:"param" bson:"param"`
-	State string        `json:"state" bson:"state"`
+	ID      bson.ObjectId          `json:"id" bson:"_id"`
+	Channel string                 `json:"channel" bson:"channel"`
+	Param   map[string]interface{} `json:"param" bson:"param"`
+	State   string                 `json:"state" bson:"state"`
 	// Estimated Time of Arrival
 	ETA       time.Time `json:"eta" bson:"eta"`
 	Created   time.Time `json:"created_at,omitempty" bson:"created_at"`

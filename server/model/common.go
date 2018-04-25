@@ -15,13 +15,13 @@ func dbError(err error) error {
 	return gear.ErrInternalServerError.From(err)
 }
 
-// All ....
-type All struct {
+// Models ....
+type Models struct {
 	Notification *Notification
 }
 
 // Init ...
-func (a *All) Init() *All {
-	a.Notification = new(Notification)
-	return a
+func (m *Models) Init() *Models {
+	m.Notification = new(Notification)
+	return m
 }

@@ -2,21 +2,26 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
+	"github.com/alastairruhm/notification-gateway/server/bll"
+	"github.com/alastairruhm/notification-gateway/server/schema"
 	"github.com/bearyinnovative/bearychat-go"
 	"github.com/mitchellh/mapstructure"
 	"github.com/teambition/gear"
 	"github.com/teambition/gear/logging"
-	"net/http"
-	"time"
 )
 
 type NotificationAPI struct {
 	CommonAPI
+	notificationBll *bll.NotificationBll
 }
 
 // Init ...
 func (i *NotificationAPI) Init(api CommonAPI) *NotificationAPI {
 	i.CommonAPI = api
+	i.notificationBll = api.blls.Notification
 	return i
 }
 
@@ -69,6 +74,17 @@ func (i *NotificationAPI) Notify(ctx *gear.Context) error {
 			User:         param.User,
 		}
 		output, _ := m.Build()
+		nRecord := schema.Notification{
+			Channel: message.Channel,
+			// Param: param,
+		}
+		_, err = i.notificationBll.Create(&nRecord)
+
+		if err != nil {
+			logging.Err(err)
+			return gear.ErrBadRequest.From(err)
+		}
+
 		http.Post("https://hook.bearychat.com/=bw74N/incoming/", "application/json", output)
 	}
 
