@@ -28,3 +28,12 @@ client -(1)-> server -(2)-> broker(redis/kafka) -(3)-> worker -> notify
 
 * RichardKnop/machinery: Machinery is an asynchronous task queue/job queue based on distributed message passing.: https://github.com/RichardKnop/machinery
 * celery/celery: Distributed Task Queue : https://github.com/celery/celery
+
+
+
+## 集成文档
+
+### bearychat
+
+* bearyinnovative/OpenAPI: BearyChat 开放 API: https://github.com/bearyinnovative/OpenAPI
+* bearyinnovative/bearychat-go: BearyChat API with go.: https://github.com/bearyinnovative/bearychat-go
