@@ -5,17 +5,10 @@ import (
 )
 
 // MaxPool max pool size
-var MaxPool int
+var MaxPool = 300
 
-func init() {
-	MaxPool = 300
-
-	// init method to start db
+func CheckAndInitServiceConnection() {
 	logging.Info("check mongodb connection")
-	checkAndInitServiceConnection()
-}
-
-func checkAndInitServiceConnection() {
 	if service.baseSession == nil {
 		service.URL = "127.0.0.1:27017"
 		err := service.New()

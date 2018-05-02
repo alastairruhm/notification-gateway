@@ -2,11 +2,13 @@ package api
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 
+	"github.com/RichardKnop/machinery/v1/tasks"
 	"github.com/alastairruhm/notification-gateway/server/bll"
 	"github.com/alastairruhm/notification-gateway/server/schema"
+	notifytasks "github.com/alastairruhm/notification-gateway/tasks"
+	"github.com/alastairruhm/notification-gateway/worker"
 	"github.com/bearyinnovative/bearychat-go"
 	"github.com/mitchellh/mapstructure"
 	"github.com/teambition/gear"
@@ -47,13 +49,14 @@ type ParamBearychatIncoming struct {
 	User         string `json:"user,omitempty"`
 	// 暂不支持 attachments
 	// Attachments  []IncomingAttachment `json:"attachments,omitempty"`
+	URL string `json:"url"`
 }
 
 func (i *NotificationAPI) Notify(ctx *gear.Context) error {
 
 	message := Message{}
 	if err := ctx.ParseBody(&message); err != nil {
-		fmt.Errorf("%v", err)
+		fmt.Printf(err.Error())
 		logging.Err(err)
 		return gear.ErrBadRequest.From(err)
 	}
@@ -66,14 +69,18 @@ func (i *NotificationAPI) Notify(ctx *gear.Context) error {
 			logging.Err(err)
 			return gear.ErrBadRequest.From(err)
 		}
-		m := bearychat.Incoming{
-			Text:         param.Text,
-			Notification: param.Notification,
-			Markdown:     param.Markdown,
-			Channel:      param.Channel,
-			User:         param.User,
+		bm := &notifytasks.BearychatIncomingMessage{
+			bearychat.Incoming{
+				param.Text,
+				param.Notification,
+				param.Markdown,
+				param.Channel,
+				param.User,
+				nil,
+			},
+			param.URL,
 		}
-		output, _ := m.Build()
+
 		nRecord := schema.Notification{
 			Channel: message.Channel,
 			// Param: param,
@@ -85,7 +92,20 @@ func (i *NotificationAPI) Notify(ctx *gear.Context) error {
 			return gear.ErrBadRequest.From(err)
 		}
 
-		http.Post("https://hook.bearychat.com/=bw74N/incoming/", "application/json", output)
+		signature := &tasks.Signature{
+			Name: "bearychat",
+			Args: []tasks.Arg{
+				{
+					Type:  "notifytasks.BearychatIncomingMessage",
+					Value: bm,
+				},
+			},
+		}
+
+		_, err = worker.Server.SendTask(signature)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 
 	return ctx.JSON(200, map[string]string{"status": "ok"})
