@@ -7,9 +7,7 @@ import (
 	"github.com/RichardKnop/machinery/v1/tasks"
 	"github.com/alastairruhm/notification-gateway/server/bll"
 	"github.com/alastairruhm/notification-gateway/server/schema"
-	notifytasks "github.com/alastairruhm/notification-gateway/tasks"
 	"github.com/alastairruhm/notification-gateway/worker"
-	"github.com/bearyinnovative/bearychat-go"
 	"github.com/mitchellh/mapstructure"
 	"github.com/teambition/gear"
 	"github.com/teambition/gear/logging"
@@ -69,23 +67,12 @@ func (i *NotificationAPI) Notify(ctx *gear.Context) error {
 			logging.Err(err)
 			return gear.ErrBadRequest.From(err)
 		}
-		bm := &notifytasks.BearychatIncomingMessage{
-			bearychat.Incoming{
-				param.Text,
-				param.Notification,
-				param.Markdown,
-				param.Channel,
-				param.User,
-				nil,
-			},
-			param.URL,
-		}
 
 		nRecord := schema.Notification{
 			Channel: message.Channel,
-			// Param: param,
+			Param:   message.Param,
 		}
-		_, err = i.notificationBll.Create(&nRecord)
+		n, err := i.notificationBll.Create(&nRecord)
 
 		if err != nil {
 			logging.Err(err)
@@ -96,8 +83,8 @@ func (i *NotificationAPI) Notify(ctx *gear.Context) error {
 			Name: "bearychat",
 			Args: []tasks.Arg{
 				{
-					Type:  "notifytasks.BearychatIncomingMessage",
-					Value: bm,
+					Type:  "string",
+					Value: n.ID.Hex(),
 				},
 			},
 		}

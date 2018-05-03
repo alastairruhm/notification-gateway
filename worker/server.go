@@ -6,7 +6,6 @@ import (
 	"github.com/RichardKnop/machinery/v1"
 	"github.com/RichardKnop/machinery/v1/config"
 	"github.com/alastairruhm/notification-gateway/tasks"
-	// "github.com/RichardKnop/machinery/v1/"
 )
 
 var Server *machinery.Server
@@ -33,8 +32,14 @@ func NewServer() (*machinery.Server, error) {
 		return nil, err
 	}
 
-	// register task
-	server.RegisterTask("bearychat", tasks.BearychatNotify)
+	// register tasks
+	err = server.RegisterTasks(map[string]interface{}{
+		"bearychat": tasks.BearychatNotify,
+	})
+
+	if err != nil {
+		return nil, err
+	}
 
 	return server, nil
 }
