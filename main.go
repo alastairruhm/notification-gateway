@@ -7,8 +7,10 @@ import (
 	"regexp"
 
 	"github.com/alastairruhm/notification-gateway/server"
-	"github.com/alastairruhm/notification-gateway/worker"
+	"github.com/benmanns/goworker"
 	"github.com/teambition/gear/logging"
+
+	_ "github.com/alastairruhm/notification-gateway/worker"
 )
 
 var (
@@ -26,10 +28,8 @@ func main() {
 	}
 
 	if *flagWorker {
-		worker := worker.Server.NewWorker("bearychat", 2)
-		err := worker.Launch()
-		if err != nil {
-			fmt.Println(err)
+		if err := goworker.Work(); err != nil {
+			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
 	}

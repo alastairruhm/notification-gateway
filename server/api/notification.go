@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/RichardKnop/machinery/v1/tasks"
 	"github.com/alastairruhm/notification-gateway/server/bll"
 	"github.com/alastairruhm/notification-gateway/server/schema"
-	"github.com/alastairruhm/notification-gateway/worker"
+	"github.com/benmanns/goworker"
 	"github.com/mitchellh/mapstructure"
 	"github.com/teambition/gear"
 	"github.com/teambition/gear/logging"
+
+	_ "github.com/alastairruhm/notification-gateway/worker"
 )
 
 type NotificationAPI struct {
@@ -72,26 +73,23 @@ func (i *NotificationAPI) Notify(ctx *gear.Context) error {
 			Channel: message.Channel,
 			Param:   message.Param,
 		}
-		n, err := i.notificationBll.Create(&nRecord)
+		_, err = i.notificationBll.Create(&nRecord)
 
 		if err != nil {
 			logging.Err(err)
 			return gear.ErrBadRequest.From(err)
 		}
-
-		signature := &tasks.Signature{
-			Name: "bearychat",
-			Args: []tasks.Arg{
-				{
-					Type:  "string",
-					Value: n.ID.Hex(),
-				},
+		err = goworker.Enqueue(&goworker.Job{
+			Queue: "myqueue",
+			Payload: goworker.Payload{
+				Class: "MyClass",
+				Args:  []interface{}{"hi", "there"},
 			},
-		}
+		})
 
-		_, err = worker.Server.SendTask(signature)
 		if err != nil {
-			fmt.Println(err)
+			logging.Err(err)
+			return gear.ErrBadRequest.From(err)
 		}
 	}
 

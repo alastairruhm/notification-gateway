@@ -3,7 +3,6 @@ package tasks
 import (
 	"net/http"
 
-	"github.com/RichardKnop/machinery/v1/log"
 	"github.com/alastairruhm/notification-gateway/server/model"
 	"github.com/bearyinnovative/bearychat-go"
 )
@@ -19,7 +18,6 @@ func BearychatNotify(notificationID string) error {
 
 	n, err := m.Notification.FindByID(notificationID)
 	if err != nil {
-		log.ERROR.Print(err)
 		return err
 	}
 	bm := &BearychatIncomingMessage{
@@ -35,12 +33,10 @@ func BearychatNotify(notificationID string) error {
 	}
 	output, err := bm.Build()
 	if err != nil {
-		log.ERROR.Print(err)
 		return err
 	}
 	_, err = http.Post(bm.URL, "application/json", output)
 	if err != nil {
-		log.ERROR.Print(err)
 		return err
 	}
 	return nil
