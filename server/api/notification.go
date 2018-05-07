@@ -73,19 +73,21 @@ func (i *NotificationAPI) Notify(ctx *gear.Context) error {
 			Channel: message.Channel,
 			Param:   message.Param,
 		}
-		_, err = i.notificationBll.Create(&nRecord)
+		n, err := i.notificationBll.Create(&nRecord)
 
 		if err != nil {
 			logging.Err(err)
 			return gear.ErrBadRequest.From(err)
 		}
+		notificationID := n.ID.Hex()
 		err = goworker.Enqueue(&goworker.Job{
-			Queue: "myqueue",
+			Queue: "bearychat",
 			Payload: goworker.Payload{
-				Class: "MyClass",
-				Args:  []interface{}{"hi", "there"},
+				Class: "Bearychat",
+				Args:  []interface{}{notificationID},
 			},
 		})
+		logging.Info("enqueue bearychat notification " + notificationID)
 
 		if err != nil {
 			logging.Err(err)

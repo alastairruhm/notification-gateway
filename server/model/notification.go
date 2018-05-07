@@ -12,7 +12,7 @@ const (
 
 // Notification ...
 type Notification struct {
-	conn *mongodb.Collection
+	Conn *mongodb.Collection
 }
 
 func NewNotificationCollection() *mongodb.Collection {
@@ -21,8 +21,8 @@ func NewNotificationCollection() *mongodb.Collection {
 
 // Save create database record
 func (n *Notification) Save(notification *schema.Notification) (*schema.Notification, error) {
-	n.conn = NewNotificationCollection()
-	defer n.conn.Close()
+	n.Conn = NewNotificationCollection()
+	defer n.Conn.Close()
 
 	// set default mongodb ID  and created date
 	notification.ID = bson.NewObjectId()
@@ -31,7 +31,7 @@ func (n *Notification) Save(notification *schema.Notification) (*schema.Notifica
 	//notification.Token = util.GenerateToken()
 	//notification.CreatedAt = time.Now()
 	// Insert database record to mongodb
-	err := n.conn.Session.Insert(&notification)
+	err := n.Conn.Session.Insert(&notification)
 	if err != nil {
 		return nil, dbError(err)
 	}
@@ -39,11 +39,11 @@ func (n *Notification) Save(notification *schema.Notification) (*schema.Notifica
 }
 
 func (n *Notification) FindByID(id string) (*schema.Notification, error) {
-	n.conn = NewNotificationCollection()
-	defer n.conn.Close()
+	n.Conn = NewNotificationCollection()
+	defer n.Conn.Close()
 
 	var notification *schema.Notification
-	err := n.conn.Session.FindId(bson.ObjectId(id)).One(notification)
+	err := n.Conn.Session.FindId(bson.ObjectId(id)).One(notification)
 
 	if err != nil {
 		return nil, dbError(err)

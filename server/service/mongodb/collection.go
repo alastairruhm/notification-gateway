@@ -20,7 +20,7 @@ func (c *Collection) Connect() {
 // NewCollectionSession get new collection
 func NewCollectionSession(name string) *Collection {
 	var c = Collection{
-		db:   newDBSession("guidor"),
+		db:   newDBSession("notification"),
 		name: name,
 	}
 	c.Connect()

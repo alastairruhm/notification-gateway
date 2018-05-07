@@ -28,10 +28,14 @@ func main() {
 	}
 
 	if *flagWorker {
+		logging.Info("worker starts.")
+
 		if err := goworker.Work(); err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
+
+		return
 	}
 
 	if portReg.MatchString(*port) {

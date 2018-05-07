@@ -3,7 +3,10 @@ package tasks
 import (
 	"net/http"
 
+	"github.com/alastairruhm/notification-gateway/server/service/mongodb"
+
 	"github.com/alastairruhm/notification-gateway/server/model"
+
 	"github.com/bearyinnovative/bearychat-go"
 )
 
@@ -12,22 +15,24 @@ type BearychatIncomingMessage struct {
 	URL string
 }
 
-func BearychatNotify(notificationID string) error {
-	models := model.Models{}
-	m := models.Init()
-
-	n, err := m.Notification.FindByID(notificationID)
+func BearychatNotify(queue string, args ...interface{}) error {
+	m := &model.Notification{
+		Conn: mongodb.NewCollectionSession("notification"),
+	}
+	// must be nofitication id
+	notificationID := args[0].(string)
+	n, err := m.FindByID(notificationID)
 	if err != nil {
 		return err
 	}
 	bm := &BearychatIncomingMessage{
 		bearychat.Incoming{
-			n.Param["text"].(string),
-			n.Param["notification"].(string),
-			n.Param["markdown"].(bool),
-			n.Param["channel"].(string),
-			n.Param["user"].(string),
-			nil,
+			Text:         n.Param["text"].(string),
+			Notification: n.Param["notification"].(string),
+			Markdown:     n.Param["markdown"].(bool),
+			Channel:      n.Param["channel"].(string),
+			User:         n.Param["user"].(string),
+			Attachments:  nil,
 		},
 		n.Param["url"].(string),
 	}
