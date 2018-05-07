@@ -42,10 +42,10 @@ func (m *Message) Validate() error {
 
 type ParamBearychatIncoming struct {
 	Text         string `json:"text"`
-	Notification string `json:"notification,omitempty"`
-	Markdown     bool   `json:"markdown,omitempty"`
-	Channel      string `json:"channel,omitempty"`
-	User         string `json:"user,omitempty"`
+	Notification string `json:"notification"`
+	Markdown     bool   `json:"markdown"`
+	Channel      string `json:"channel"`
+	User         string `json:"user"`
 	// 暂不支持 attachments
 	// Attachments  []IncomingAttachment `json:"attachments,omitempty"`
 	URL string `json:"url"`
@@ -80,6 +80,7 @@ func (i *NotificationAPI) Notify(ctx *gear.Context) error {
 			return gear.ErrBadRequest.From(err)
 		}
 		notificationID := n.ID.Hex()
+
 		err = goworker.Enqueue(&goworker.Job{
 			Queue: "bearychat",
 			Payload: goworker.Payload{
@@ -87,12 +88,13 @@ func (i *NotificationAPI) Notify(ctx *gear.Context) error {
 				Args:  []interface{}{notificationID},
 			},
 		})
-		logging.Info("enqueue bearychat notification " + notificationID)
 
 		if err != nil {
 			logging.Err(err)
 			return gear.ErrBadRequest.From(err)
 		}
+
+		logging.Info("enqueue bearychat notification " + notificationID)
 	}
 
 	return ctx.JSON(200, map[string]string{"status": "ok"})

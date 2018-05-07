@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/alastairruhm/notification-gateway/server"
+	"github.com/alastairruhm/notification-gateway/server/service/mongodb"
 	"github.com/benmanns/goworker"
 	"github.com/teambition/gear/logging"
 
@@ -29,7 +30,7 @@ func main() {
 
 	if *flagWorker {
 		logging.Info("worker starts.")
-
+		mongodb.CheckAndInitServiceConnection()
 		if err := goworker.Work(); err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
