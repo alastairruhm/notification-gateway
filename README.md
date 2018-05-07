@@ -28,7 +28,7 @@ client -(1)-> server -(2)-> broker(redis/kafka) -(3)-> worker -> notify
 
 * RichardKnop/machinery: Machinery is an asynchronous task queue/job queue based on distributed message passing.: https://github.com/RichardKnop/machinery
 * celery/celery: Distributed Task Queue : https://github.com/celery/celery
-
+* benmanns/goworker: https://github.com/benmanns/goworker
 
 
 ## 集成文档
